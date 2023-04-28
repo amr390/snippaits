@@ -52,17 +52,10 @@ interface Sizes {
 
 const MainContent = () => {
   const [sizes, setSizes] = useState<Sizes>({ top: 20, bottom: 80 })
-  const handleResize = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    const container = event.currentTarget
-    const containerRect = container.getBoundingClientRect()
-    const containerHeight = containerRect.height
-    const topHeight = Math.floor(
-      ((event.clientY - containerRect.top) / containerHeight) * 100
-    )
-    const bottomHeight = 100 - topHeight
-    setSizes({ top: topHeight, bottom: bottomHeight })
+
+  const handleResize = (bottom: number) => {
+    const newSizes = { bottom: bottom, top: 100 - bottom }
+    setSizes((prevSizes) => ({ ...prevSizes, newSizes }))
   }
 
   return (
@@ -71,13 +64,11 @@ const MainContent = () => {
         className='flex w-full bg-gray-100'
         style={{ flex: `0 0 ${sizes.top}` }}
       >
-        <ResizebleComponent initializeSize={sizes.top} onResize={handleResize}>
-          <input
-            type='text'
-            placeholder='Introduce el texto aquí'
-            className='w-4/5 mx-auto h-full p-4'
-          />
-        </ResizebleComponent>
+        <input
+          type='text'
+          placeholder='Introduce el texto aquí'
+          className='w-4/5 mx-auto h-full p-4'
+        />
       </div>
       <div
         className='flex w-full bg-gray-200'
@@ -97,26 +88,32 @@ const MainContent = () => {
 }
 
 const ResizebleComponent = (props: Props) => {
-  const [size, setSize] = useState<number>(props.initializeSize)
   const [isDragging, setIsDragging] = useState<boolean>(false)
 
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>): void => {
+  const handleMouseDown = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ): void => {
     event.preventDefault()
+    console.log("start dragging");
+    
     setIsDragging(true)
   }
 
-  const handleMouseMove = (event: any)=> { 
+  const handleMouseMove = (event: any) => {
     if (isDragging) {
+    console.log("dragging...");
       const newSize = Math.max(
         Math.min((event.clickY / window.innerHeight) * 10)
       )
-      setSize(newSize)
       props.onResize(newSize)
     }
   }
 
-  const handleMouseUp = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      setIsDragging(false)
+  const handleMouseUp = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    console.log("finish dragging");
+    setIsDragging(false)
   }
 
   return (
