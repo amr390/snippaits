@@ -1,23 +1,7 @@
+import { Resizable } from 're-resizable'
+import { Resizer } from 're-resizable/lib/resizer'
 import React, { MouseEventHandler, useState } from 'react'
 import '../styles/App.css'
-
-/*
- <div className='flex flex-1 flex-col'>
-        <nav className='flex flex-1 flex-row justify-between max-h-10'>
-          <span>burger button</span>
-          <span>Login</span>
-        </nav>
-        <div className='flex flex-1 flex-col min-h-[calc(100vh-2rem)]'>
-          <div className='flex items-center justify-center h-40'>
-            <input type='text' className='w-wh border rounded border-solid border-gray-600' />
-          </div>
-          <div className='flex items-center justify-center min-h-[calc(100vh-16rem)] border rounded border-solid border-gray-600'>
-            <textarea />
-          </div>
-        </div>
-      </div>
-    </div>
-  */
 
 const App: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -46,84 +30,38 @@ interface Props {
 }
 
 interface Sizes {
-  top: number
-  bottom: number
+  width: number | string
+  height: number | string
 }
 
 const MainContent = () => {
-  const [sizes, setSizes] = useState<Sizes>({ top: 20, bottom: 80 })
-
-  const handleResize = (bottom: number) => {
-    const newSizes = { bottom: bottom, top: 100 - bottom }
-    setSizes((prevSizes) => ({ ...prevSizes, newSizes }))
-  }
+  const [sizes, setSizes] = useState<Sizes>({ width: '100%', height: '80%' })
 
   return (
     <div className='flex flex-col h-screen'>
-      <div
-        className='flex w-full bg-gray-100'
-        style={{ flex: `0 0 ${sizes.top}` }}
-      >
+      <div className='flex p-4 w-full  bg-gray-100' style={{ height: sizes.height }}>
         <input
           type='text'
           placeholder='Introduce el texto aquí'
-          className='w-4/5 mx-auto h-full p-4'
+          className='w-4/5 mx-auto max-h-[8rem] p-4'
         />
       </div>
-      <div
-        className='flex w-full bg-gray-200'
-        style={{ flex: `0 0 ${sizes.bottom}` }}
+      <Resizable
+        defaultSize={{ ...sizes }}
+        onResizeStop={(e, direction, ref, d) => {
+          setSizes((prevSizes) => ({
+            ...prevSizes,
+            ...{
+              width: (sizes.width as number) + d.width,
+              height: (sizes.height as number) + d.height,
+            },
+          }))
+        }}
       >
-        <ResizebleComponent
-          initializeSize={sizes.bottom}
-          onResize={handleResize}
-        >
-          <div className='flex justify-around mx-auto w-4/5 h-full p-4'>
-            Response go here
-          </div>
-        </ResizebleComponent>
-      </div>
-    </div>
-  )
-}
-
-const ResizebleComponent = (props: Props) => {
-  const [isDragging, setIsDragging] = useState<boolean>(false)
-
-  const handleMouseDown = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ): void => {
-    event.preventDefault()
-    console.log("start dragging");
-    
-    setIsDragging(true)
-  }
-
-  const handleMouseMove = (event: any) => {
-    if (isDragging) {
-    console.log("dragging...");
-      const newSize = Math.max(
-        Math.min((event.clickY / window.innerHeight) * 10)
-      )
-      props.onResize(newSize)
-    }
-  }
-
-  const handleMouseUp = (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
-  ) => {
-    console.log("finish dragging");
-    setIsDragging(false)
-  }
-
-  return (
-    <div
-      style={{ width: '100%', backgroundColor: 'gray' }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    >
-      {props.children}
+        <div className='flex justify-around mx-auto w-4/5 h-full p-4'>
+          Response go here
+        </div>
+      </Resizable>
     </div>
   )
 }
